@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+          <meta charset="UTF-8">
+          <meta http-equiv="X-UA-Compatible" content="IE=edge">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
+          <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+          
+          <script src="https://unpkg.com/@babel/standalone@7.8.3/babel.js"></script>
+
+          <title>Toggle Btn</title>
+</head>
+<body>
+          <div id='app'></div>
+
+          <script type= "text/babel">
+                    class Btn extends React.Component {
+
+                              btnDoChange = () => {
+                                        this.props.changeB()
+                              }
+
+                              render() { 
+                                        return (  
+                                                  <button onClick = {this.btnDoChange}>
+
+                                                            {this.props.value 
+                                                                      ? "ON" 
+                                                                      : "OFF"
+                                                            }    
+                                                            
+                                                  </button>
+                                        );
+                              }
+                    }
+                    
+                    class Button extends React.Component {
+                              constructor(props) {
+                                        super(props);
+
+                                        this.state = { 
+                                                  btnOn: true,
+                                        }
+                              }
+
+                              // ds didn't work
+                              // changeBtn = (lan) => {
+                              //           this.setState({
+                              //                     btnOn: lan
+                              //           })
+                              // }
+
+                              // dse worked
+                              changeBtn = () => {
+                                        this.setState({
+                                                  btnOn: !this.state.btnOn
+                                        })
+                              }
+
+                              // changeBtn = () => {
+                              //           this.setState(init => {
+                              //                     return (
+                              //                               {
+                              //                                         btnOn: !init.btnOn
+                              //                               }
+                              //                     )
+                              //           })
+                              // }
+
+                              render() { 
+                                        return ( 
+                                                  <div>
+                                                            <Btn 
+                                                                      value = {this.state.btnOn}
+                                                                      changeB = {this.changeBtn}
+                                                            />
+                                                  </div>
+                                        );
+                              }
+                    }
+                    
+
+                    ReactDOM.render(
+                              <Button />,
+                              document.getElementById('app')
+                    )
+
+          </script>
+          
+</body>
+</html>
