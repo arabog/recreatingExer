@@ -5,18 +5,75 @@
           <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
           <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
           <script src='https://unpkg.com/babel-standalone@6/babel.min.js'></script>
-          <link rel="stylesheet" href="styles.css">
 
           <title>Clock</title>
 </head>
 <body>
           <div id='app'></div>
           
-          <script>
+          <script type = "text/babel">
+
+                    class Text extends React.Component {
+                              constructor(props) {
+                                        super(props);
+                                        this.state = {  }
+                              }
+                              render() { 
+                                        return (
+                                                  <h2>
+                                                            Current Time in Ibadan:
+                                                  </h2>
+                                        );
+                              }
+                    }
                     
 
+                    class Clock extends React.Component {
+                              constructor(props) {
+                                        super(props);
 
+                                        this.state = { 
+                                                  time: new Date()
+                                        }
 
+                              }
+
+                              tick() {
+                                        this.setState({
+                                                  time: new Date()
+                                        })
+                              }
+                              componentDidMount(){
+                                        this.timer = window.setInterval(
+                                                  () => this.tick(),
+                                        1000)
+                              }
+
+                              componentWillunMount() {
+                                        clearInterval(this.timer)
+                              }
+
+                              render() { 
+                                        return ( 
+                                                  <div>
+                                                            <Text />
+
+                                                            <div>
+                                                                      <p>
+                                                                                {this.state.time.toLocaleTimeString()}          
+                                                                      </p>
+                                                            </div>
+
+                                                  </div>
+                                        );
+                              }
+                    }
+                    
+
+                    ReactDOM.render(
+                              <Clock/>,
+                              document.getElementById('app')
+                    )
           </script>
 
 </body>
