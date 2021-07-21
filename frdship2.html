@@ -1,1 +1,248 @@
+<!DOCTYPE html>
+<html>
+<head>
+          <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+          <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+          <script src='https://unpkg.com/babel-standalone@6/babel.min.js'></script>
 
+          <title>Frdship2</title>
+</head>
+<body>
+          <div id='app'></div>
+          
+          <script type="text/babel">
+                    class ActiveFrds extends React.Component {
+                    
+                              render() { 
+                                        return ( 
+                                                  <div>
+                                                            <h1>Active Friends: </h1>
+                                                            
+                                                            <ul>
+                                                                      {
+                                                                                this.props.separate.map(item => {
+                                                                                          return (
+                                                                                                    <li key= {item.name}>
+                                                                                                              {item.name}
+
+                                                                                                              <button
+                                                                                                                        onClick= {() => this.props.delFrd(item.name)}
+                                                                                                              >
+                                                                                                                        Delete          
+                                                                                                              </button>
+
+                                                                                                              <button 
+                                                                                                                        onClick={() => this.props.toggleFrd(item.name)}
+                                                                                                              >
+                                                                                                                        Deactivate          
+                                                                                                              </button>
+                                                                                                    </li>
+
+                                                                                          )
+                                                                                })
+                                                                      }          
+                                                            </ul>
+                                                  </div>
+                                        );
+                              }
+                    }
+
+                    class InActiveFrds extends React.Component {
+                              render() { 
+                                        return (  
+                                                  <div>
+                                                            <h1>Inactive Friends: </h1>
+                                                            
+                                                            <ul>
+                                                                      {
+                                                                                this.props.separate.map(item => {
+                                                                                          return (
+                                                                                                    <li key= {item.name}>
+                                                                                                              {item.name}
+
+                                                                                                              <button 
+                                                                                                                        onClick={() => this.props.toggleFrd(item.name)}
+                                                                                                              >
+                                                                                                                        Activate          
+                                                                                                              </button>
+                                                                                                    </li>
+
+                                                                                          )
+                                                                                })
+                                                                      }          
+                                                            </ul>
+                                                  </div>
+                                        );
+                              }
+                    }
+                    
+                    class SearchBar extends React.Component {
+                              render() { 
+                                        return (
+                                                  <div>
+                                                            <input 
+                                                                      type="text"
+                                                                      placeholder = "Enter a friend name..."
+
+                                                                      // import d valChange as props
+                                                                      onChange = {this.props.valChange}
+
+                                                                       // import d initVal as props
+                                                                      value = {this.props.initValue}
+
+                                                            />
+
+                                                            
+                                                            <button
+                                                                      onClick = {this.props.newFrd}
+                                                            >
+                                                                      Submit          
+                                                            </button>  
+
+                                                            <div>
+                                                                      <button
+                                                                                onClick= {this.props.clearFrds}
+                                                                      >
+                                                                                Clear All          
+                                                                      </button>          
+                                                            </div>
+                                                  </div>
+                                        );
+                              }
+                    }
+                    
+                    class Friends extends React.Component {
+                              constructor(props) {
+                                        super(props);
+
+                                        this.state = { 
+                                                  input: '',
+
+                                                  friends: []
+                                        }
+                              }
+
+                              // get input value
+                              getInputVal = (e) => {
+                                        let value = e.target.value
+
+                                        // set state to track d changes
+                                        this.setState(() => {
+                                                  return (
+                                                            {
+                                                                      input: value,
+                                                            }
+                                                  )
+                                        })
+                              }
+
+                              // add a method for d post btn---submit
+                              addNewFrd =() => {
+                                        this.setState((newAddn) => {
+                                                  return (
+                                                            {
+                                                                      friends: newAddn.friends.concat([{
+                                                                                name: this.state.input,
+                                                                                active: true
+                                                                      }]),
+
+                                                                      // after adding d value clear d input box of any text
+                                                                      input: ''
+                                                            }
+                                                  )
+                                        })
+                              }
+
+                              // add method(of state) for d clear all btn
+                              clearAllFrds = () =>{
+                                        this.setState(() => {
+                                                  return (
+                                                            {
+                                                                      friends: [],
+                                                            }
+                                                  )
+                                        })
+                              }
+
+                              // mk d del btn fxnal using state tks an argument
+                              delFrdBtn = (frdToDel) => {
+                                        this.setState((frds) => {
+                                                  return (
+                                                            {
+                                                                      friends: frds.friends.filter(item => item.name !== frdToDel)
+                                                            }
+                                                  )
+                                        })
+
+                              }
+
+                              // let de(activate) simultaneously
+                              toggleFrdBtn = (frdToToggle) => {
+                                        
+                                        
+                                        this.setState((togFrd) => {
+                                                  let frdObj = togFrd.friends.find(item => item.name == frdToToggle)
+                                                  
+                                                  return (
+                                                            {
+                                                                      friends: togFrd.friends
+                                                                                                    .filter(item => item.name !== frdToToggle)
+                                                                                                    .concat(
+                                                                                                              [
+                                                                                                                        {
+                                                                                                                                  name: frdToToggle,
+                                                                                                                                  active: !frdObj.active
+                                                                                                                        }
+                                                                                                              ]
+                                                                                                    )
+                                                            }
+                                                  )
+                                        })
+
+                              }
+
+                              render() { 
+                                        return ( 
+                                                  <div>
+                                                            <SearchBar 
+                                                                      // add d input value 4rm getInputVal to onchage
+                                                                      valChange = {this.getInputVal}
+                                                                      // get d initial value for input
+                                                                      initValue = {this.state.input}
+
+                                                                      // send d new frd value out into d onClick of submit btn
+                                                                      newFrd = {this.addNewFrd}
+
+                                                                      // send d clearAll new state into d onClick of clearAll btn
+                                                                      clearFrds = {this.clearAllFrds}
+                                                            />
+
+                                                            <ActiveFrds 
+                                                                      separate = {this.state.friends.filter(item => item.active == true)}
+                                                                      delFrd = {this.delFrdBtn}
+
+                                                                      // goes into both De(activate) btn inside In(Active) frds components
+                                                                      toggleFrd ={this.toggleFrdBtn}
+
+                                                            />
+                                                            
+                                                            <InActiveFrds  
+                                                                      separate = {this.state.friends.filter(item => item.active == false)}
+
+                                                                      // goes into both De(activate) btn inside In(Active) frds components
+                                                                      toggleFrd ={this.toggleFrdBtn}
+
+                                                            />
+                                                  </div>
+                                         );
+                              }
+                    }
+                    
+                    ReactDOM.render(
+                              <Friends />,
+                              document.getElementById('app')
+                    )
+
+          </script>
+</body>
+</html>
