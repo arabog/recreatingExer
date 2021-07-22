@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+          <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+          <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+          <script src='https://unpkg.com/babel-standalone@6/babel.min.js'></script>
+          
+          <title>Jobs App</title>
+</head>
+<body>
+          <div id='app'></div>
+          
+          <script type="text/babel">
+                    class JobCategory extends React.Component {
+                    
+                              render() { 
+                                        let jobCategory = this.props.category;
+
+                                        return ( 
+                                                  <tr>
+                                                            <th colSpan = "2"> {jobCategory} </th>
+                                                  </tr>
+                                                            
+                                        );
+                              }
+                    }
+                    
+                    class JobRows extends React.Component {
+                              render() { 
+                                        let jobs = this.props.jobs;
+
+                                        let name = jobs.available
+                                                            ? jobs.name
+                                                            : <span style = {{color: 'red'}}>
+                                                                      {jobs.name}          
+                                                            </span>
+
+                                        return (  
+                                                  <tr>
+                                                            <td> {name} </td>
+                                                            <td> {jobs.salary} </td>
+                                                  </tr>
+                                        );
+                              }
+                    }
+                    
+                    class SearchBar extends React.Component {
+
+                              render() { 
+                                        return ( 
+                                                  <div>
+                                                            <input 
+                                                                      type="text"
+                                                                      placeholder = "Search ...."
+
+                                                                      value = {this.props.initVal}
+                                                                      onChange = {this.props.changeVal}
+                                                            
+                                                            />   
+
+                                                            <button onClick = {this.props.addedJob}>
+                                                                      Post New Jobs          
+                                                            </button>
+
+                                                            <p>
+                                                                      <input 
+                                                                                type="checkbox"
+                                                                                checked ={this.props.checkVal}
+                                                                                onChange = {this.props.checkBox}
+                                                                      />    
+                                                                      
+                                                                      {' '}
+
+                                                                      Only Show Available Jobs                                                                      
+                                                            </p>
+                                                  </div>
+                                        );
+                              }
+                    }
+
+                    class JobsTable extends React.Component {
+                              constructor(props) {
+                                        super(props);
+                                        
+                                        this.state = {}
+                              }
+
+                              
+                              render() { 
+                                        let lastCategory = null
+                                        let rows = []
+
+                                        let inputVal = this.props.initVal
+                                        let checkBoxVal = this.props.checkVal
+
+                                        this.props.jobs.forEach(item => {
+                                                  if(item.name.indexOf(inputVal) === -1
+                                                            && item.category.indexOf(inputVal) === -1) {
+                                                            return
+                                                  }
+
+                                                  if( checkBoxVal && !item.available) {
+                                                            return
+                                                  }
+
+                                                  if(item.category !== lastCategory) {
+                                                            rows.push(
+                                                                      <JobCategory
+                                                                                category = {item.category}
+                                                                                key = {item.category}
+                                                                      />
+                                                            )
+                                                  }
+
+                                                  rows.push(
+                                                            <JobRows
+                                                                      jobs ={item}
+                                                                      key = {item.name}
+                                                            />
+                                                  )
+
+                                                  lastCategory = item.category;
+                                        })
+
+                                        return (  
+                                                  <div>
+                                                            <SearchBar 
+                                                                      // input box
+                                                                      initVal = {this.props.initVal}
+                                                                      changeVal = {this.props.changeVal}
+                                                                      addedJob = {this.props.addedJob}
+
+                                                                      // checkbox
+                                                                      checkBox = {this.props.checkBox}
+                                                                      checkVal = {this.props.checkVal}
+                                                            />
+
+                                                            <table>
+                                                                      <thead >
+                                                                                <tr> 
+                                                                                          <th>Job </th>
+                                                                                          <th> Salary </th>          
+                                                                                </tr>          
+                                                                                          
+                                                                      </thead>
+                                                                      
+                                                                      <tbody>
+                                                                                {rows}
+                                                                      </tbody>          
+                                                            </table>
+
+                                                  </div>
+                                        );
+                              }
+                    }
+                    
+                    class Jobs extends React.Component {
+                              constructor(props) {
+                                        super(props);
+
+                                        this.state = {  
+                                                  input: '',
+                                                  onlyAvailableJob: false,
+                                                  newestJob: this.props.JobAndJob
+                                                  
+                                        }
+                              }
+
+                              // get d input value
+                              getJob = (e) => {
+                                        let value = e.target.value
+                                        value = value.replace(/^(.)|\s+(.)/g, c => c.toUpperCase())
+
+                                        this.setState( () => {
+                                                  return (
+                                                            {
+                                                                      input: value
+                                                            }
+                                                  )}
+                                        )
+                              }
+
+                              // insert new job
+                              postJob = () => {
+                                        this.setState((next) => {
+                                                  return (
+                                                            {
+                                                                      newestJob: next.newestJob.concat(
+                                                                                                    [
+                                                                                                              {
+                                                                                                                        name: this.state.input,
+                                                                                                                        category: "New Jobs",
+                                                                                                                        salary: '$5000',
+                                                                                                                        available: true,
+                                                                                                              }
+                                                                                                    ]
+                                                                                          ),
+
+                                                                      input: ''
+                                                            }
+                                                  )
+                                        })
+                              }
+
+                              // get checkbox value
+                              getCheckbox = (anyth) => {
+                                        let checked = anyth.target.checked
+
+                                        this.setState(
+                                                            {
+                                                                      onlyAvailableJob: checked
+                                                            }
+                                                  
+                                        )
+                              }
+
+                              render() { 
+
+                                        return ( 
+                                                  <div>
+                                                            <JobsTable 
+                                                                      jobs = {this.state.newestJob}
+
+                                                                      initVal = {this.state.input}
+                                                                      changeVal = {this.getJob}
+
+                                                                      addedJob = {this.postJob}
+
+                                                                      checkBox = {this.getCheckbox}
+                                                                      checkVal = {this.state.onlyAvailableJob}
+
+                                                            />    
+                                                            
+                                                  </div>
+                                        );
+                              }
+                    }
+                    
+
+                    const JOBOFFERS = [
+                              {category: 'Design', salary: '$49.99', available: true, name: 'Ui'},
+                              {category: 'Design', salary: '$9.99', available: true, name: 'Ux'},
+                              {category: 'Design', salary: '$29.99', available: false, name: 'Ui/Ux'},
+                              {category: 'Frontend Developer', salary: '$99.99', available: true, name: 'Basics'},
+                              {category: 'Frontend Developer', salary: '$299.99', available: false, name: 'Basics with Framework'},
+                              {category: 'Frontend Developer', salary: '$499.99', available: true, name: 'Basics with Frameworks'},
+                              {category: 'Backend Developer', salary: '$800', available: false, name: 'Node'},
+                              {category: 'Backend Developer', salary: '$850', available: true, name: 'Python'},
+                              {category: 'Backend Developer', salary: '$1000', available: true, name: 'Php'},
+                              {category: 'Fullstack Developer', salary: '$2000', available: true, name: 'Frontend with Node'},
+                              {category: 'Fullstack Developer', salary: '$1850', available: true, name: 'Frontend with Php'},
+                              {category: 'Fullstack Developer', salary: '$2200', available: false, name: 'Frontend with Python'},
+                    ];
+
+
+                    ReactDOM.render(
+                              <Jobs JobAndJob = {JOBOFFERS}/>,
+                              document.getElementById('app')
+                    )
+
+          </script>
+
+</body>
+</html>
