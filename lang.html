@@ -1,45 +1,130 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-          <title>First React App</title>
-          <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
-          <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
-          <script src='https://unpkg.com/babel-standalone@6/babel.min.js'></script>
-          <link rel="stylesheet" href="styles.css">
+          <meta charset="UTF-8">
+          <meta http-equiv="X-UA-Compatible" content="IE=edge">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
+          <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
 
-          <title>Coding Lang</title>
+          <script src="https://unpkg.com/@babel/standalone@7.8.3/babel.js"></script>
+
+          <title>Lang</title>
 </head>
 <body>
-          <div id='app'></div>
+          <div id="root"></div>
           
           <script>
                     window.API = {
-                              fetchPopularRepos(language = 'all') {
-                                        const encodedURI = encodeURI(`https://api.github.com/search/repositories?q=stars:>1+language:${language}&sort=stars&order=desc&type=Repositories`)
-                                        
-                                        return fetch(encodedURI)
-                                                  .then((res) => res.json())
-                                                  .then((data) => data.items)
+                              popularRepo(language) {
+                                        const fetchRepo = encodeURI(`https://api.github.com/search/repositories?q=stars:>1+language:${language}&sort=stars&order=desc&type=Repositories`)
 
-                                                  .catch((error) => {
-                                                            console.warn(error)
-                                                            return null
-                                                  });
+                                        fetch(fetchRepo)
+                                                  .then(res => res.json)
+                                                  .then(data => data.items)
+
+                                                  .catch(err => {
+                                                            console.warn(err);
+                                                  })
                               }
+
                     }
           </script>
 
-          <script type='text/babel'>
-                    // child component
+          <script type = "text/babel">
+                    class LoadPage extends React.Component {
+                              constructor(props) {
+                                        super(props);
+                                        this.state = { 
+                                                  startingPg: 'Welcome'
+                                        }
+                              }
+                              
+                              componentDidMount(){
+                                        let nextText = this.state.startingPg + '. . . . . '
 
-                                        // name, owner, stargazers_count, html_url }
+                                        this.timer = window.setInterval(() => {
+                                                  this.state.startingPg === nextText
+                                                            ? this.setState(()=> {
+                                                                      return (
+                                                                                {
+                                                                                          startingPg: "Here Comes the Homepage"
+                                                                                }
+                                                                      )
+                                                            })
+                                                            : this.setState((nee) => {
+                                                                      return(
+                                                                                {
+                                                                                          startingPg: nee.startingPg + ": nothing to display"
+                                                                                }
+                                                                      )
+                                                            })
+                                        }, 300)
+                              }
+                              
+                              componentWillUnmount() {
+                                        clearInterval(this.timer)
+                              }
 
+                              render() { 
+                                        return ( 
+                                                  <div>
+                                                            {this.state.startingPg}
+                                                  </div>
+                                        );
+                              }
+                    }
                     
-                    ReactDOM.render(
-                              <App />,
-                              document.getElementById('app')
-                    )
+                    class Nav extends React.Component {
+                              constructor(props) {
+                                        super(props);
+                                        this.state = {  }
+                              }
+                              render() { 
+                                        let languages = ['All', 'JavaScript', 'Python', 'Ruby']
 
+                                        return ( 
+                                                  <div>
+                                                            <ul>
+                                                                      {
+                                                                                languages.map(lang => (
+                                                                                          <li>
+                                                                                                    {lang}          
+                                                                                          </li>
+                                                                                ))          
+                                                                      }
+                                                            </ul>
+                                                  </div>
+                                         );
+                              }
+                    }
+                     
+                    class CodingLang extends React.Component {
+                              constructor(props) {
+                                        super(props);
+
+                                        this.state = {
+                                                  repos: [],
+                                                  langToDisplay: 'all',
+                                                  startingPgStillLoading: true
+                                        }
+                              }
+
+                              render() { 
+                                        return ( 
+                                                  <div>
+                                                            <Nav />
+                                                  </div>
+                                         );
+                              }
+                    }
+                              
+                    ReactDOM.render(
+                              <CodingLang />,
+                              document.getElementById('root')
+                    )
           </script>
+
+
 </body>
 </html>
