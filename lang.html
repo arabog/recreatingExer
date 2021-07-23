@@ -110,6 +110,31 @@
                                         }
                               }
 
+ // consume d api
+                              fetchGivenRepo(arg) {
+                                        // maintain d startingPgStillLoading
+                                        this.setState(()=> {
+                                                  return (
+                                                            {
+                                                                      startingPgStillLoading: true
+                                                            }
+                                                  )
+                                        })
+
+                                        // declare a method 4 d api
+                                        window.API.popularRepo(arg)
+                                                  .then(info => {
+                                                            this.setState(() => {
+                                                                      return(
+                                                                                {
+                                                                                          startingPgStillLoading: false,
+                                                                                          repos: info
+                                                                                }
+                                                                      )
+                                                            })
+                                                  })
+                              }
+                              
                               render() { 
                                         return ( 
                                                   <div>
