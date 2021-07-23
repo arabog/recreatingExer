@@ -135,6 +135,17 @@
                                                   })
                               }
                               
+                                      componentDidMount() {
+                                        return fetchGivenRepo(argumt)
+                              }
+
+                              componentDidUpdate(prevProp, prevState){
+                                        if(prevState.langToDisplay !== this.state.langToDisplay) {
+                                                  return fetchGivenRepo(this.state.langToDisplay)
+                                        }
+                              }
+                              
+                              
                               render() { 
                                         return ( 
                                                   <div>
