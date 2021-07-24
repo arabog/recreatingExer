@@ -1,166 +1,200 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-          <meta charset="UTF-8">
-          <meta http-equiv="X-UA-Compatible" content="IE=edge">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
-          <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
-
-          <script src="https://unpkg.com/@babel/standalone@7.8.3/babel.js"></script>
-
-          <title>Lang</title>
+          <title>Coding Lang</title>
+          <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+          <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+          <script src='https://unpkg.com/babel-standalone@6/babel.min.js'></script>
+          <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-          <div id="root"></div>
+          <div id='app'></div>
           
           <script>
                     window.API = {
-                              popularRepo(language) {
-                                        const fetchRepo = encodeURI(`https://api.github.com/search/repositories?q=stars:>1+language:${language}&sort=stars&order=desc&type=Repositories`)
+                              fetchPopularRepos(language = 'all') {
+                                        const encodedURI = encodeURI(`https://api.github.com/search/repositories?q=stars:>1+language:${language}&sort=stars&order=desc&type=Repositories`)
+                                        
+                                        return fetch(encodedURI)
+                                                  .then((res) => res.json())
+                                                  .then((data) => data.items)
 
-                                        fetch(fetchRepo)
-                                                  .then(res => res.json)
-                                                  .then(data => data.items)
-
-                                                  .catch(err => {
-                                                            console.warn(err);
-                                                  })
+                                                  .catch((error) => {
+                                                            console.warn(error)
+                                                            return null
+                                                  });
                               }
-
                     }
           </script>
 
-          <script type = "text/babel">
-                    class LoadPage extends React.Component {
+          <script type='text/babel'>
+                    class Loading extends React.Component {
                               constructor(props) {
                                         super(props);
-                                        this.state = { 
-                                                  startingPg: 'Welcome'
-                                        }
+                                        this.state = {
+                                                  text: 'Loading'
+                                        };
                               }
-                              
-                              componentDidMount(){
-                                        let nextText = this.state.startingPg + '. . . . . '
 
-                                        this.timer = window.setInterval(() => {
-                                                  this.state.startingPg === nextText
-                                                            ? this.setState(()=> {
-                                                                      return (
-                                                                                {
-                                                                                          startingPg: "Here Comes the Homepage"
-                                                                                }
-                                                                      )
-                                                            })
-                                                            : this.setState((nee) => {
-                                                                      return(
-                                                                                {
-                                                                                          startingPg: nee.startingPg + ": nothing to display"
-                                                                                }
-                                                                      )
-                                                            })
+                              // LifeCycle methods
+                              componentDidMount() {
+                                        const stopper = this.state.text + '...';
+
+                                        this.interval = window.setInterval(() => {
+                                                  // ternary operator
+                                                  this.state.text === stopper
+                                                            ? this.setState(() => ({ text: 'Loading' }))
+                                                            : this.setState((prevState) => ({ text: prevState.text + '.' }))
+                                                  
+                                                  
                                         }, 300)
                               }
-                              
+
                               componentWillUnmount() {
-                                        clearInterval(this.timer)
+                                        window.clearInterval(this.interval);
                               }
 
-                              render() { 
-                                        return ( 
-                                                  <div>
-                                                            {this.state.startingPg}
-                                                  </div>
-                                        );
+                              render() {
+                                        return (
+                                                  <p>
+                                                            {this.state.text}
+                                                  </p>
+                                        )
                               }
                     }
-                    
-                    class Nav extends React.Component {
-                              constructor(props) {
-                                        super(props);
-                                        this.state = {  }
-                              }
-                              render() { 
-                                        let languages = ['All', 'JavaScript', 'Python', 'Ruby']
 
-                                        return ( 
-                                                  <div>
-                                                            <ul>
-                                                                      {
-                                                                                languages.map(lang => (
-                                                                                          <li>
-                                                                                                    {lang}          
-                                                                                          </li>
-                                                                                ))          
-                                                                      }
-                                                            </ul>
-                                                  </div>
-                                         );
-                              }
+                    // child component
+                    function Nav (props) {
+                              let languages = ['all', 'javascript', 'ruby', 'python']
+
+                              return (
+                                        <nav>
+                                                  <ul className="nav">
+                                                            {languages.map((langssss) => (
+                                                                      <li className="fast" key={langssss} onClick={() => props.selectLang(langssss)}>
+                                                                               <span> {langssss} </span>
+                                                                      </li>
+                                                            ))}
+                                                  </ul>
+                                        </nav>
+                              )
                     }
-                     
-                    class CodingLang extends React.Component {
+
+
+                    function RepoGrid (props) {
+                              return (
+                                        <ul style={{display: 'flex', flexWrap: 'wrap'}}>
+
+                                                  {props.repos.map(({ name, owner, stargazers_count, html_url }) => (
+                                                            <li key={name} style={{margin: 30}}>
+
+                                                                      <ul>
+                                                                                <li><a href={html_url}>{name}</a></li>
+                                                                                <li>@{owner.login}</li>
+                                                                                <li>{stargazers_count} stars</li>
+                                                                      </ul>
+
+                                                            </li>
+                                                  ))}
+
+                                        </ul>
+                              )
+                    }
+
+                    class App extends React.Component {
                               constructor(props) {
-                                        super(props);
+                                        super(props)
 
                                         this.state = {
-                                                  repos: [],
-                                                  langToDisplay: 'all',
-                                                  startingPgStillLoading: true
+                                                  langToDisplay: 'all',        //for home pg
+                                                  pageStillLoading: true,      // boolean
+                                                  repos: [],          //data from d api
                                         }
+
                               }
 
- // consume d api
-                              fetchGivenRepo(arg) {
-                                        // maintain d startingPgStillLoading
-                                        this.setState(()=> {
+                              // method for API ----get
+                              // change oda state except d main th(langToDisplay)
+                              fetchRepos= (lang) => {
+                                        this.setState(() => {
                                                   return (
                                                             {
-                                                                      startingPgStillLoading: true
+                                                                      pageStillLoading: true
                                                             }
                                                   )
                                         })
 
-                                        // declare a method 4 d api
-                                        window.API.popularRepo(arg)
-                                                  .then(info => {
-                                                            this.setState(() => {
-                                                                      return(
+                                        window.API.fetchPopularRepos(lang)
+                                                  .then((data) => {
+                                                            this.setState(()=> {
+                                                                      return (
                                                                                 {
-                                                                                          startingPgStillLoading: false,
-                                                                                          repos: info
+                                                                                          pageStillLoading: false,
+                                                                                          repos: data
                                                                                 }
                                                                       )
                                                             })
                                                   })
                               }
-                              
-                                      componentDidMount() {
-                                        return fetchGivenRepo(argumt)
+
+                              // Lifecycles: get
+                              componentDidMount() {
+                                        this.fetchRepos(this.state.langToDisplay)
                               }
 
-                              componentDidUpdate(prevProp, prevState){
-                                        if(prevState.langToDisplay !== this.state.langToDisplay) {
-                                                  return fetchGivenRepo(this.state.langToDisplay)
+                              // Lifecycles: update
+                              componentDidUpdate (prevProps, prevState) {
+                                        // if prevState is nt d same as current change to current
+                                        if (prevState.langToDisplay !== this.state.langToDisplay) {
+                                                  this.fetchRepos(this.state.langToDisplay)
                                         }
                               }
+                               // update
+                              //  selectLanguage= (lang) => {
+                              //           this.setState({
+                              //                     langToDisplay: lang
+                              //           })
+                              // }
+                              // Or:
+                              selectLanguage= (lang) => {
+                                        
+                                        this.setState(()=> {
+                                                  return ({
+                                                            langToDisplay: lang
+                                                  })
+                                        })
+                              }
                               
-                              
-                              render() { 
-                                        return ( 
+                              // get
+                              render() {
+                                        let repoInfo = this.state.repos
+
+                                        return (
                                                   <div>
-                                                            <Nav />
+                                                            <Nav selectLang={this.selectLanguage} />
+
+                                                            {
+                                                                      this.state.pageStillLoading === true
+                                                                                ? <Loading />
+
+                                                                                : <div>
+                                                                                          <h1 style={{textAlign: 'center'}}>
+                                                                                                    {this.state.langToDisplay}
+                                                                                          </h1>
+
+                                                                                          <RepoGrid repos={repoInfo} />
+                                                                                </div>
+                                                            }
                                                   </div>
-                                         );
+                                        )
                               }
                     }
-                              
+                    
                     ReactDOM.render(
-                              <CodingLang />,
-                              document.getElementById('root')
+                              <App />,
+                              document.getElementById('app')
                     )
+
           </script>
-
-
 </body>
 </html>
